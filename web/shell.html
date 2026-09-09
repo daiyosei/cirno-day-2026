@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" >
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" >
+        <title>Cirno Day</title>
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                background: #5b6ee1;
+                color: #e0e0e0;
+                font-family: Georgia, "Times New Roman", Times, serif;
+                font-size: 17px;
+            }
+            body {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            #canvas {
+                box-shadow: 0 0 16px rgba(0, 0, 0, 0.35);
+                border: none;
+                transition: opacity 0.5s ease-in-out;
+                opacity: 0;
+                background-color: #000;
+            }
+
+            /* --- MOBILE-ONLY WALL ---
+        #mobile-wall {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1000;
+            background-color: #1a1a1a;
+            display: none;
+            flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 20px;
+        }
+        .mobile-wall-content h1 { font-size: 1.5em; color: #00b8d4; }
+        .mobile-wall-content p { color: #ccc; max-width: 400px; line-height: 1.6; } */
+
+            /* --- LOADING OVERLAY --- */
+            #loader {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 999;
+                background: #5b6ee1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                transition: opacity 0.8s ease-out;
+            }
+            #loader.hidden {
+                opacity: 0;
+                pointer-events: none;
+            }
+            .loader-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .loader-content > img {
+                width: 128px;
+                height: 128px;
+                margin-bottom: 20px;
+            }
+            .powered-by {
+                color: darkslategray;
+                margin-top: 5px;
+                font-size: 1.15em;
+            }
+            .progress-bar-container {
+                width: 300px;
+                height: 10px;
+                background-color: #5b6ee1;
+                border-radius: 5px;
+                margin: 20px 0 12px;
+                overflow: hidden;
+            }
+            #progress-bar {
+                width: 0%;
+                height: 100%;
+                background: black;
+                transition: width 0.2s linear;
+            }
+            #status-text {
+                color: black;
+                margin: 0 0 8px;
+                font-size: 1.03rem;
+            }
+            .loading-lore {
+                margin: 0;
+                color: black;
+                letter-spacing: 0.02em;
+                animation: lore-pulse 1.8s ease-in-out infinite;
+                font-size: 1.1rem;
+            }
+            #lore-placeholder {
+                min-height: 1.2em;
+                margin: 4px 0 0;
+                color: yellow;
+                font-size: 1.5rem;
+            }
+            #loading-yinyang {
+                position: fixed;
+                right: -14vmin;
+                bottom: -14vmin;
+                width: 90vmin;
+                height: 90vmin;
+                max-width: none;
+                max-height: none;
+                display: block;
+                opacity: 0.34;
+                transform-origin: 50% 50%;
+                filter: invert(1) sepia(85%) saturate(520%) hue-rotate(312deg) brightness(0.42)
+                    contrast(1.08);
+                animation:
+                    yinyang-rotate 5.6s linear infinite,
+                    yinyang-pulse 1.8s ease-in-out infinite;
+                pointer-events: none;
+            }
+            /* #loading-yinyang.steady { animation: yinyang-rotate 5.6s linear infinite; } */
+            @keyframes yinyang-rotate {
+                from {
+                    transform: rotate(0deg);
+                }
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+            @keyframes yinyang-pulse {
+                0%,
+                100% {
+                    opacity: 0.22;
+                }
+                50% {
+                    opacity: 0.46;
+                }
+            }
+            @keyframes lore-pulse {
+                0%,
+                100% {
+                    opacity: 0.6;
+                }
+                50% {
+                    opacity: 1;
+                }
+            }
+            .loader-footer {
+                position: absolute;
+                bottom: 20px;
+                width: 100%;
+                text-align: center;
+                color: black;
+                font-size: 0.9em;
+                line-height: 1.5;
+            }
+            .loader-footer p {
+                margin: 2px 0;
+            }
+            .loader-footer a {
+                color: #0097a7;
+                text-decoration: none;
+            }
+            .loader-footer a:hover {
+                text-decoration: underline;
+            }
+
+            .ui-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+            .ui-overlay > * {
+                pointer-events: auto;
+            }
+            .controls {
+                padding: 10px;
+                text-align: right;
+            }
+            /* #toggle-console-btn { background-color: rgba(30, 30, 30, 0.8); border: 1px solid #555; color: #ccc; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-size: 0.95rem; } */
+            /* .console-container { width: 100%; height: 35vh; background-color: rgba(26, 26, 26, 0.9); border-top: 1px solid #444; display: flex; flex-direction: column; padding: 10px; transform: translateY(100%); transition: transform 0.3s ease-in-out; }
+        .console-container.visible { transform: translateY(0); } */
+            h3 {
+                margin: 0 0 10px 0;
+                font-size: 0.9em;
+                text-transform: uppercase;
+                color: #999;
+            }
+            /* #dev-console { width: 100%; flex-grow: 1; background-color: #252525; border: 1px solid #444; color: #00ddff; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.95rem; padding: 10px; resize: none; overflow-y: auto; }
+	   */
+        </style>
+    </head>
+    <body>
+        <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+
+        <!-- <div id="mobile-wall"> -->
+        <!--     <div class="mobile-wall-content"> -->
+        <!--         <h1>Unsupported Device</h1> -->
+        <!--         <p> -->
+        <!--             Cirno's Math Class is designed for a PC experience with keyboard controls. -->
+        <!--             <br><br> -->
+        <!--             Please visit on a desktop or laptop computer to play. -->
+        <!--         </p> -->
+        <!--     </div> -->
+        <!-- </div> -->
+
+        <div id="loader">
+            <div class="loader-content">
+                <!-- <img src="raylib_logo.png" alt="Raylib Logo" /> -->
+                <h1 class="powered-by">Powered by Raylib, C++ and Emscripten &lt;3</h1>
+                <br >
+                <p class="loading-lore">Please wait warmly. The girls are now praying.</p>
+                <div class="progress-bar-container">
+                    <div id="progress-bar"></div>
+                </div>
+                <p id="status-text">Initializing...</p>
+                <br >
+                <p id="lore-placeholder">
+                    Happy Cirno Day 2026!
+                </p>
+            </div>
+            <img id="loading-yinyang" src="static/yinyang.svg" alt="" aria-hidden="true" >
+            <div class="loader-footer">
+                <p>Touhou Project is a copyright of Team Shanghai Alice (ZUN)</p>
+                <p>What is presented in this game is fan-made and fictional</p>
+            </div>
+        </div>
+
+        <!-- The UI Overlay (for console) -->
+        <div class="ui-overlay">
+            <!-- <div class="controls"><button id="toggle-console-btn">Show Console</button></div> -->
+            <!-- <div class="console-container" id="console-container"> -->
+            <!--     <h3>DEV CONSOLE</h3><textarea id="dev-console" readonly></textarea> -->
+            <!-- </div> -->
+        </div>
+
+        <script type="text/javascript">
+            (function () {
+                const canvas = document.getElementById("canvas");
+                const loader = document.getElementById("loader");
+                const progressBar = document.getElementById("progress-bar");
+                const statusText = document.getElementById("status-text");
+                const yinyang = document.getElementById("loading-yinyang");
+                // const consoleContainer = document.getElementById('console-container');
+                // const toggleBtn = document.getElementById('toggle-console-btn');
+                // const devConsole = document.getElementById('dev-console');
+                const ua = navigator.userAgent || "";
+                const mobileDetected =
+                    /Android|iPhone|iPad|iPod|Mobile|webOS|BlackBerry|IEMobile|Opera Mini/i.test(
+                        ua,
+                    ) ||
+                    (navigator.maxTouchPoints || 0) > 1 ||
+                    (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+
+                let resizeInFlight = false;
+                let lastCanvasW = -1;
+                let lastCanvasH = -1;
+                function resizeCanvas() {
+                    if (resizeInFlight) return;
+                    const screenWidth = window.innerWidth;
+                    const screenHeight = window.innerHeight;
+                    if (screenWidth === lastCanvasW && screenHeight === lastCanvasH) return;
+                    resizeInFlight = true;
+                    canvas.style.width = screenWidth + "px";
+                    canvas.style.height = screenHeight + "px";
+                    if (window.Module && typeof window.Module.setCanvasSize === "function") {
+                        window.Module.setCanvasSize(screenWidth, screenHeight);
+                    }
+                    lastCanvasW = screenWidth;
+                    lastCanvasH = screenHeight;
+                    resizeInFlight = false;
+                }
+                window.addEventListener("resize", resizeCanvas);
+
+                //toggleBtn.addEventListener('click', () => {
+                //    consoleContainer.classList.toggle('visible');
+                //    toggleBtn.textContent = consoleContainer.classList.contains('visible') ? 'Hide Console' : 'Show Console';
+                //});
+
+                //setTimeout(() => { yinyang.classList.add('steady'); }, 4200);
+
+                window.Module = {
+                    canvas: (() => canvas)(),
+                    mobileDetected: mobileDetected,
+                    postRun: [resizeCanvas],
+                    setStatus: function (text) {
+                        if (!Module.setStatus.last)
+                            Module.setStatus.last = { time: Date.now(), text: "" };
+                        if (text === Module.setStatus.last.text) return;
+                        const m = text.match(/([^(]+)\(([^/]+)\/([^)]+)\)/);
+                        if (m) {
+                            const label = m[1].trim();
+                            const loaded = Number(String(m[2]).replace(/[^\d.]/g, ""));
+                            const total = Number(String(m[3]).replace(/[^\d.]/g, ""));
+                            if (Number.isFinite(loaded) && Number.isFinite(total) && total > 0) {
+                                progressBar.style.width = (loaded / total) * 100 + "%";
+                                if (
+                                    total >= 1024 * 1024 ||
+                                    /download|data|wasm|file/i.test(label)
+                                ) {
+                                    const loadedMB = (loaded / (1024 * 1024)).toFixed(2);
+                                    const totalMB = (total / (1024 * 1024)).toFixed(2);
+                                    statusText.textContent = `${label} ${loadedMB} MB / ${totalMB} MB`;
+                                } else {
+                                    statusText.textContent = `${label} ${loaded} of ${total}`;
+                                }
+                            } else {
+                                statusText.textContent = text;
+                            }
+                        } else {
+                            statusText.textContent = text;
+                        }
+                    },
+                    totalDependencies: 0,
+                    monitorRunDependencies: function (left) {
+                        this.totalDependencies = Math.max(this.totalDependencies, left);
+                        Module.setStatus(
+                            left
+                                ? "Preparing... (" +
+                                      (this.totalDependencies - left) +
+                                      "/" +
+                                      this.totalDependencies +
+                                      ")"
+                                : "All downloads complete.",
+                        );
+                    },
+                    onRuntimeInitialized: function () {
+                        progressBar.style.width = "100%";
+                        statusText.textContent = "Ready!";
+
+                        setTimeout(() => {
+                            loader.classList.add("hidden");
+                            canvas.style.opacity = 1;
+                            resizeCanvas();
+                            if (typeof mobileDetected !== "undefined" && mobileDetected) {
+                                const enterFullscreen = () => {
+                                    // Don't try if we are already in fullscreen
+                                    if (document.fullscreenElement) return;
+
+                                    if (canvas.requestFullscreen) {
+                                        canvas.requestFullscreen().catch(() => {});
+                                    } else if (document.documentElement.requestFullscreen) {
+                                        document.documentElement
+                                            .requestFullscreen()
+                                            .catch(() => {});
+                                    }
+                                };
+
+                                const keepTryingFullscreen = () => {
+                                    enterFullscreen();
+                                };
+                                window.addEventListener("pointerdown", keepTryingFullscreen, {
+                                    passive: true,
+                                });
+                                window.addEventListener("mousedown", keepTryingFullscreen, {
+                                    passive: true,
+                                });
+                                window.addEventListener("touchstart", keepTryingFullscreen, {
+                                    passive: true,
+                                });
+                            }
+                        }, 2500);
+                    },
+                    //print: (text) => {
+                    //    console.log(text);
+                    //    if (devConsole) {
+                    //        devConsole.value += text + '\n';
+                    //        devConsole.scrollTop = devConsole.scrollHeight;
+                    //    }
+                    //},
+                    //printErr: (text) => {
+                    //    console.error(text);
+                    //    if (devConsole) {
+                    //        devConsole.value += `[ERROR] ${text}\n`;
+                    //        devConsole.scrollTop = devConsole.scrollHeight;
+                    //    }
+                    //},
+                };
+                Module.setStatus("Downloading...");
+            })();
+        </script>
+        <script data-goatcounter="https://theindiandev.goatcounter.com/count"
+                async src="//gc.zgo.at/count.js"></script>
+        {{{ SCRIPT }}}
+    </body>
+</html>

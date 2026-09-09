@@ -1,0 +1,62 @@
+name: Build WebAssembly
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+  workflow_dispatch:
+
+jobs:
+  build-web:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick ffmpeg
+
+      - name: Install Go Minify
+        run: |
+          go install github.com/tdewolff/minify/v2/cmd/minify@latest
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
+      - name: Clone Raylib
+        run: |
+          mkdir -p temp
+          git clone --depth 1 https://github.com/raysan5/raylib.git temp/raylib_source
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+          actions-cache-folder: "emsdk-cache"
+
+      - name: Configure CMake
+        run: emcmake cmake -S . -B build-web -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Project
+        run: cmake --build build-web --parallel
+
+      - name: Prepare Distribution Folder
+        run: |
+          mkdir -p dist
+
+          cp build-web/cirno_day.html dist/index.html
+          cp build-web/cirno_day.js dist/
+          cp build-web/cirno_day.wasm dist/
+          cp build-web/cirno_day.data dist/
+
+          if [ -d "build-web/static" ]; then
+            cp -r build-web/static dist/
+          fi
+
+      - name: Upload Web Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: touhou-pride-jam-web
+          path: dist/

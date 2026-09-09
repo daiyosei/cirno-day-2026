@@ -1,0 +1,7 @@
+build/
+build-web/
+temp/
+test/a.out
+compile_commands.json
+.clangd
+.cache
