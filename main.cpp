@@ -29,7 +29,10 @@ void drawFrame(GameState& currentGameState) {
     float renderScale = currentGameState.renderScale;
 
     if (IsDialogRunning(currentGameState)) {
+        currentGameState.DialogueOnlyInput = true;
         UpdateDialog(currentGameState);
+    } else {
+        currentGameState.DialogueOnlyInput = false;
     }
 
     BeginDrawing();
@@ -120,7 +123,7 @@ int main() {
     // };
     // TODO : Implement Asset Manager
     // DisableCursor();
-    g_bgMusic = LoadMusicStream("../assets/audio/bgm/bg.ogg");
+    // g_bgMusic = LoadMusicStream("../assets/audio/bgm/bg.wav");
     // PlayMusicStream(g_bgMusic);
     SetMusicVolume(g_bgMusic, 0.5f);
     currentGameState.AssetManager.init();

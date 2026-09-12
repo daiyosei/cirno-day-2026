@@ -8,18 +8,23 @@
 #define CIRNO_DIALOG "Cirno",
 
 inline void ProcessClick(GameState &gs) {
+    if (gs.GameOver) return;
+    if (gs.DialogueOnlyInput) return;
+    
     if (CheckCollisionPointRec(gs.currentMousePos, Forehead)) {
         if (gs.flickCount == 0) {
             SayDialog(gs, std::vector<Dialogues>{
-                {CIRNO_DIALOG HURT, "owww"},
-                {CIRNO_DIALOG PISSED, "it hurts. You are mean!"},
+                {CIRNO_DIALOG HURT, "Owww"},
+                {CIRNO_DIALOG PISSED, "It hurts."},
                 {CIRNO_DIALOG PISSED, "Why did you do that?"}
             });
+            gs.flickCount++;
         } else if (gs.flickCount == 1) {
             SayDialog(gs, std::vector<Dialogues> {
                 {CIRNO_DIALOG HURT, "You did it again!"},
-                {CIRNO_DIALOG PISSED, "Owww, it hurts.\nStop it!"},
+                {CIRNO_DIALOG PISSED, "Stop it!"},
             });
+            gs.flickCount++;
         } else if (gs.flickCount == 2) {
             SayDialog(gs, std::vector<Dialogues> {
                 {CIRNO_DIALOG PISSED, "No, I won't let you\ndo it again"},
@@ -27,62 +32,63 @@ inline void ProcessClick(GameState &gs) {
             });
             gs.explored.insert(1);
         }
-        gs.flickCount++;
     }
     else if (CheckCollisionPointRec(gs.currentMousePos, UI_arrowBtn)) {
         if (gs.curPos == INSIDE) {
             changeSceneTo(gs, OUTSIDE);
-            SayDialog(gs, std::vector<Dialogues> {
-                {CIRNO_DIALOG WOW, "This is where I live"},
-            });
             gs.explored.insert(2);
         } else if (gs.curPos == OUTSIDE) {
             changeSceneTo(gs, FOREST);
-            SayDialog(gs, std::vector<Dialogues> {
-                {CIRNO_DIALOG LAUGH, "Let's freeze some\nfrogs!"},
-            });
             gs.explored.insert(3);
         } else if (gs.curPos == FOREST) {
             changeSceneTo(gs, INSIDE);
-            SayDialog(gs, std::vector<Dialogues> {
-                {CIRNO_DIALOG RELAXED, "Back in sweet cozy\nhome!"}
-            });
-            gs.explored.insert(4);
         }
     } else if (CheckCollisionPointRec(gs.currentMousePos, UI_talkBtn)) {
-        if (!gs.usedTalkButton) {
+        if (gs.TalkButtonUseCount == 0) {
             SayDialog(gs, std::vector<Dialogues> {
                 {CIRNO_DIALOG RELAXED, "Good Morning"},
             });
-            gs.usedTalkButton = true;
-        } else {
+            gs.TalkButtonUseCount++;
+        } else if (gs.TalkButtonUseCount == 1) {
             SayDialog(gs, std::vector<Dialogues> {
                 {CIRNO_DIALOG JOY, "Having lots of fun is\nwhat matters."},
                 {CIRNO_DIALOG RELAXED, "Imagine having no fun\nand being grumpy\nall the time."},
-                {CIRNO_DIALOG JOY, "Next time, when you come,\nwe can play together."},
-                {CIRNO_DIALOG JOY, "With Daiyousei and\nthe other fairies."},
+            });
+            gs.TalkButtonUseCount++;
+        } else if (gs.TalkButtonUseCount == 2) {
+            SayDialog(gs, std::vector<Dialogues> {
+                {CIRNO_DIALOG JOY, "Next time, when you come,\nwe can play together with\nDaiyousei and the other"},
+                {CIRNO_DIALOG JOY, "fairies."},
+            });
+            gs.TalkButtonUseCount++;
+        } else if (gs.TalkButtonUseCount == 3) {
+            SayDialog(gs, std::vector<Dialogues> {
                 {CIRNO_DIALOG RELAXED, "It would be nice if\nwinter comes soon."},
                 {CIRNO_DIALOG JOY, "I want to skate on the\nmisty lake with Letty."},
-                {CIRNO_DIALOG WOW, "I am the smartest\nin Gensokyo."},
-                {CIRNO_DIALOG WOW, "I can add and multiply\nfractions!"},
+            });
+            gs.TalkButtonUseCount++;
+        } else if (gs.TalkButtonUseCount == 4) {
+            SayDialog(gs, std::vector<Dialogues> {
+                {CIRNO_DIALOG WOW, "I am the smartest in\nGensokyo. I can add\nand multiply fractions!"},
                 {CIRNO_DIALOG LAUGH, "Only a few could rival\nan intellect such\nas mine."}
             });
-            gs.explored.insert(7);
+            gs.TalkButtonUseCount = 1;
+            gs.explored.insert(4);
         }
     }
     else if (gs.curPos == INSIDE) {
         if (CheckCollisionPointRec(gs.currentMousePos, Calendar)) {
             SayDialog(gs, std::vector<Dialogues> {
-                {CIRNO_DIALOG WOW, "its cirno day, todeh"},
-                {CIRNO_DIALOG JOY, "billions must celebrate"}
+                {CIRNO_DIALOG WOW, "Its Cirno Day, todeh."},
+                {CIRNO_DIALOG JOY, "Billions must celebrate\nthis occasion."}
             });
             gs.explored.insert(5);
         }
         else if (CheckCollisionPointRec(gs.currentMousePos, Chest)) {
             if (gs.chestCount == 0) {
                 SayDialog(gs, std::vector<Dialogues> {
-                    {CIRNO_DIALOG WOW, "Hey!! Don't snoop around\nthe chest"},
-                    {CIRNO_DIALOG TIERED, "It's where I store all my\ntreasures"}
+                    {CIRNO_DIALOG WOW, "Hey!! Don't snoop around\nthe chest."},
+                    {CIRNO_DIALOG TIERED, "It's where I store all my\ntreasures."}
                 });
                 gs.chestCount++;
             } else if (gs.chestCount == 1) {
@@ -93,84 +99,108 @@ inline void ProcessClick(GameState &gs) {
             }
         }
         else if (CheckCollisionPointRec(gs.currentMousePos, Futton)) {
-            if (gs.explored.size() == 13) {
+            if (gs.explored.size() ==  12) {
                 SayDialog(gs, std::vector<Dialogues> {
-                    {CIRNO_DIALOG WOW, "I am feeling sleepy\nI had lots of fun with you"},
-                    {CIRNO_DIALOG TIERED, " I am gonna take a nap\nLet's see tommorow!!"}
+                    {CIRNO_DIALOG WOW, "I am feeling sleepy\nI had lots of fun with you."},
+                    {CIRNO_DIALOG TIERED, " I am gonna take a nap\nnow. Let's see tommorow!!"}
                 });
+                gs.GameOver = true;
             } else {
                 SayDialog(gs, std::vector<Dialogues> {
-                    {CIRNO_DIALOG WOW, "I just woke up before\nyou came"},
-                    {CIRNO_DIALOG TIERED, "So, I am not sleepy now\nI want to play"}
+                    {CIRNO_DIALOG WOW, "I just woke up before\nyou came."},
+                    {CIRNO_DIALOG TIERED, "So, I am not sleepy now."}
                 });
             }
         }
     } else if (gs.curPos == OUTSIDE){
         if (CheckCollisionPointRec(gs.currentMousePos, YokaiMountain)) {
-            SayDialog(gs, std::vector<Dialogues> {
-                {CIRNO_DIALOG WOW, "That's the Youkai Mountain\nThat's where Aya lives"},
-                {CIRNO_DIALOG JOY, "She is nosy and snitches\nme to people whenever\nI am up to no good"},
-                {CIRNO_DIALOG PISSED, "Bah!! She is annoying!"},
-                {CIRNO_DIALOG JOY, "The Moriya shrine is at\nthe very top of the\nYoukai Mountain"},
-                {CIRNO_DIALOG WOW, "The deities there,\nare very strong."},
-                {CIRNO_DIALOG LAUGH, "Not as strong as me,\nof course!"},
-                {CIRNO_DIALOG WOW, "But I like the Hakurei\nshrine more"},
-                {CIRNO_DIALOG RELAXED, "Reimu sometimes gives\nme some snacks\nwhen I go there"},
-            });
-            gs.explored.insert(8);
+            if (gs.MountainClickCount == 0) {
+                SayDialog(gs, std::vector<Dialogues> {
+                    {CIRNO_DIALOG WOW, "That's Youkai Mountain\nThat's where Aya\nlives"},
+                    {CIRNO_DIALOG JOY, "She is nosy and snitches\nme to people whenever\nI am up to no good"},
+                    {CIRNO_DIALOG PISSED, "Bah!! She is annoying!"},
+                });
+            } else if (gs.MountainClickCount == 1) {
+                SayDialog(gs, std::vector<Dialogues> {
+                    {CIRNO_DIALOG JOY, "The Moriya shrine is at\nthe very top of the\nYoukai Mountain"},
+                    {CIRNO_DIALOG WOW, "The deities there are\nvery strong."},
+                    {CIRNO_DIALOG LAUGH, "Not as strong as me,\nof course!"},
+                });
+                gs.explored.insert(7);
+            }
+            gs.MountainClickCount = (gs.MountainClickCount + 1) % 2;
         } else if (CheckCollisionPointRec(gs.currentMousePos, MistyLake)) {
             SayDialog(gs, std::vector<Dialogues> {
-                {CIRNO_DIALOG WOW, "Do you know? There is a\ngiant frog that lives"},
-                {CIRNO_DIALOG TIERED, "at the bottom of the lake.\nIt's very very big."},
+                {CIRNO_DIALOG WOW, "Do you know? There is a\ngiant frog that lives at\nthe bottom of the lake."},
+                {CIRNO_DIALOG TIERED, "It's very very big."},
                 {CIRNO_DIALOG PISSED, "It ate me one time!!"}
             });
-            gs.explored.insert(9);
+            gs.explored.insert(8);
         } else if (CheckCollisionPointRec(gs.currentMousePos, Igloo)) {
             SayDialog(gs, std::vector<Dialogues> {
                 {CIRNO_DIALOG WOW, "My house looks very cool,\nright?"},
-                {CIRNO_DIALOG JOY, "It was a lot of work,\nbullying the other fairies\ninto building my house"},
-                {CIRNO_DIALOG TIERED, "Though, sometimes they\nbarge into my home to\nplay"}
+                {CIRNO_DIALOG JOY, "It was a lot of work,\nbullying the other fairies\ninto building my house."},
+                {CIRNO_DIALOG TIERED, "Though, they now barge\ninto my home to play,\nwhenever they want,"},
+                {CIRNO_DIALOG TIERED, "without my permission."}
             });
-            gs.explored.insert(10);
+            gs.explored.insert(9);
         } else if (CheckCollisionPointRec(gs.currentMousePos, Flower) && !gs.flowerOnHead) {
-            SayDialog(gs, std::vector<Dialogues> {
-                {CIRNO_DIALOG JOY, "A flower!"},
-            });
-            gs.flowerOnHead = true;
-            SayDialog(gs, std::vector<Dialogues> {
-                {CIRNO_DIALOG WOW, "Do I look cute with\nthis flower on me?"},
-                {CIRNO_DIALOG LAUGH, "I like it a lot"}
-            });
-            gs.explored.insert(11);
+            if (gs.FlowerClickCount == 0) {
+                SayDialog(gs, std::vector<Dialogues> {
+                    {CIRNO_DIALOG WOW, "A flower!"},
+                });
+                gs.FlowerClickCount++;
+            } else if (gs.FlowerClickCount == 1) {
+                gs.flowerOnHead = true;
+                SayDialog(gs, std::vector<Dialogues> {
+                    {CIRNO_DIALOG JOY, "Do I look cute with\nthis flower on me?"},
+                    {CIRNO_DIALOG RELAXED, "I like it a lot"}
+                });
+                gs.explored.insert(10);
+            }
         }
     } else if (gs.curPos == FOREST) {
         if (CheckCollisionPointRec(gs.currentMousePos, Frog)) {
             if (!gs.frogDialogDone) {
                 SayDialog(gs, std::vector<Dialogues> {
-                    {CIRNO_DIALOG WOW, "Suwako somehow always\ncatches me henever I bully\nfrogs here"},
-                    {CIRNO_DIALOG JOY, "Let's leave it alone for now\nShe will beat me up"},
-                    {CIRNO_DIALOG TIERED, "if I get caught red handed"}
+                    {CIRNO_DIALOG WOW, "Suwako somehow always\ncatches me whenever I\nbully frogs here"},
+                    {CIRNO_DIALOG JOY, "Let's leave it alone for\nnow"},
+                    {CIRNO_DIALOG TIERED, "She will beat me\nup if I get caught red\nhanded."}
                 });
                 gs.frogDialogDone = true;
-                gs.explored.insert(12);
             } else {
                 SayDialog(gs, std::vector<Dialogues> {
-                    {CIRNO_DIALOG LAUGH, "Ribbit ribbit\nThe frogs make\nfunny noises."},
+                    {CIRNO_DIALOG LAUGH, "The frogs make funny\nnoises. Ribbit Ribbit."},
+                });
+                gs.explored.insert(11);
+            }
+        } else if (CheckCollisionPointRec(gs.currentMousePos, RiceCake)) {
+            if (gs.ShrineClickCount == 0) {
+                SayDialog(gs, std::vector<Dialogues> {
+                    {CIRNO_DIALOG RELAXED, "It's a small shrine for the\nMoriya gods."},
+                    {CIRNO_DIALOG WOW, "That Shrine Maiden Sanae\ncomes here from time to\ntime and takes care of it. "},
+                });
+                gs.ShrineClickCount++;
+            } else if (gs.ShrineClickCount == 1) {
+                SayDialog(gs, std::vector<Dialogues> {
+                    {CIRNO_DIALOG JOY, "Look! There is a rice cake\nhere left as an offering."}
+                });
+                gs.ShrineClickCount++;
+            } else if (gs.ShrineClickCount == 2) {
+                gs.riceCakeEaten = true;
+                SayDialog(gs, std::vector<Dialogues> {
+                    {CIRNO_DIALOG JOY, "The rice cake magically \ndisappeared!"},
+                    {CIRNO_DIALOG RELAXED, ". . .", 0.4f},
+                    {CIRNO_DIALOG JOY, "*Burp*"},
+                });
+                gs.explored.insert(12);
+                gs.ShrineClickCount++;
+            } else if (gs.ShrineClickCount == 3) {
+                SayDialog(gs, std::vector<Dialogues> {
+                    {CIRNO_DIALOG RELAXED, "It's a small shrine for the\nMoriya gods."},
+                    {CIRNO_DIALOG WOW, "That Shrine Maiden Sanae\ncomes here from time to\ntime and takes care of it. "},
                 });
             }
-        } else if (CheckCollisionPointRec(gs.currentMousePos, RiceCake) && !gs.riceCakeEaten) {
-            SayDialog(gs, std::vector<Dialogues> {
-                {CIRNO_DIALOG RELAXED, "It's a small shrine for the\nMoriya gods built by the Kappas"},
-                {CIRNO_DIALOG WOW, "The Miko called Sanae comes\nhere from time to time\nand takes care of it. "},
-                {CIRNO_DIALOG JOY, "Look! There is a rice cake here\nleft as an offering."}
-            });
-            gs.explored.insert(13);
-            gs.riceCakeEaten = true;
-            SayDialog(gs, std::vector<Dialogues> {
-                {CIRNO_DIALOG JOY, "The rice cake magically disappeared!"},
-                {CIRNO_DIALOG RELAXED, ". . .", 0.4f},
-                {CIRNO_DIALOG JOY, "*Burp*"},
-            });
         }
     }
 }

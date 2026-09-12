@@ -105,6 +105,12 @@ struct GameState {
     bool flowerOnHead = false;
     bool riceCakeEaten = false;
     bool frogDialogDone = false;
-    bool usedTalkButton = false;
+    int TalkButtonUseCount = 0;
+    int MountainClickCount = 0;
+    int FlowerClickCount = 0;
+    int ShrineClickCount = 0;
+    bool DialogueOnlyInput = false;
+    bool GameOver = false;
+    float GameOverTime = -1.0f;
     std::set<int> explored = {};
 };

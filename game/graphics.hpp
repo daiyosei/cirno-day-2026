@@ -8,33 +8,30 @@
 
 constexpr float TRANSITION_TIME = 1.5f; // in seconds
 
-inline void drawCirno(GameState &gs) {
+Texture2D getCirno(GameState &gs)
+{
     switch (gs.curExp) {
         case NEUTRAL:
-            DrawTextureV(gs.AssetManager.load("cirno-neutral"), CIRNO_SPRITE_POSITION, WHITE);
-            break;
+            return gs.AssetManager.load("cirno-neutral");
         case PISSED:
-            DrawTextureV(gs.AssetManager.load("cirno-pissed"), CIRNO_SPRITE_POSITION, WHITE);
-            break;
+            return gs.AssetManager.load("cirno-pissed");
         case HURT:
-            DrawTextureV(gs.AssetManager.load("cirno-hurt"), CIRNO_SPRITE_POSITION, WHITE);
-            break;
+            return gs.AssetManager.load("cirno-hurt");
         case JOY:
-            DrawTextureV(gs.AssetManager.load("cirno-joy"), CIRNO_SPRITE_POSITION, WHITE);
-            break;
+            return gs.AssetManager.load("cirno-joy");
         case WOW:
-            DrawTextureV(gs.AssetManager.load("cirno-wow"), CIRNO_SPRITE_POSITION, WHITE);
-            break;
+            return gs.AssetManager.load("cirno-wow");
         case TIERED:
-            DrawTextureV(gs.AssetManager.load("cirno-tiered"), CIRNO_SPRITE_POSITION, WHITE);
-            break;
+            return gs.AssetManager.load("cirno-tiered");
         case LAUGH:
-            DrawTextureV(gs.AssetManager.load("cirno-laugh"), CIRNO_SPRITE_POSITION, WHITE);
-            break;
+            return gs.AssetManager.load("cirno-laugh");
         case RELAXED:
-            DrawTextureV(gs.AssetManager.load("cirno-relaxed"), CIRNO_SPRITE_POSITION, WHITE);
-            break;
+            return gs.AssetManager.load("cirno-relaxed");
     }
+}
+
+inline void drawCirno(GameState &gs) {
+    DrawTextureV(getCirno(gs), CIRNO_SPRITE_POSITION, WHITE);
 }
 
 inline Texture2D getCurrentScene(GameState &gs) {
@@ -71,8 +68,9 @@ inline Texture2D getCurrentScene(GameState &gs, POSITION scene) {
 
 inline void DrawSceneChange(GameState &gs) {
     if (gs.timeSinceSceneChange < TRANSITION_TIME) {
-        float t = Clamp(gs.timeSinceSceneChange / TRANSITION_TIME, 0.0f, 1.0f);
+        float t = Clamp(gs.timeSinceSceneChange / (TRANSITION_TIME / 2), 0.0f, 1.0f);
         float a = 0.5f - 0.5f * cosf(t * PI);
+
         DrawTextureV(getCurrentScene(gs, gs.prevPos),
                      ZERO_VEC,
                      ColorAlpha(WHITE, 1.0f - a));
@@ -80,8 +78,24 @@ inline void DrawSceneChange(GameState &gs) {
         DrawTextureV(getCurrentScene(gs, gs.curPos),
                      ZERO_VEC,
                      ColorAlpha(WHITE, a));
+
+        if (gs.timeSinceSceneChange > (TRANSITION_TIME/2)) {
+            float halfTime = gs.timeSinceSceneChange - (TRANSITION_TIME / 2);
+            float t2 = Clamp(halfTime / (TRANSITION_TIME / 2), 0.0f, 1.0f);
+            float a2 = 0.5f - 0.5f * cosf(t2 * PI);
+            
+            DrawTextureV(getCirno(gs),
+                         CIRNO_SPRITE_POSITION,
+                         ColorAlpha(WHITE, a2));
+
+            if (gs.curExp != HURT && gs.flowerOnHead) {
+                DrawTextureV(gs.AssetManager.load("flower"),  ZERO_VEC, ColorAlpha(WHITE, a2));
+            }
+        }
+
         gs.timeSinceSceneChange = gs.timeSinceSceneChange + GetFrameTime();
-    } else {
+    }
+    else {
         gs.timeSinceSceneChange = -1.0f;
     }
 }
