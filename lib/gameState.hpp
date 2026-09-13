@@ -12,8 +12,6 @@ constexpr int VIRTUAL_SCREEN_H = 400;
 constexpr float WEB_RENDER_SCALE = 2.0f;
 constexpr Vector2 ZERO_VEC = {0,0};
 
-inline Music g_bgMusic;
-
 enum DialogueState {
     DIALOGUE_OFF,
     DIALOGUE_SCROLLING,
@@ -113,4 +111,6 @@ struct GameState {
     bool GameOver = false;
     float GameOverTime = -1.0f;
     std::set<int> explored = {};
+
+    Music BGMusic;
 };

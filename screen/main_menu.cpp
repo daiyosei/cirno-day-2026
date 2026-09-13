@@ -39,6 +39,6 @@ void drawMainMenu(GameState &gs){
         }
     }
     ui::DrawTextV("Happy Cirno Day", {22, 20}, 22, ColorAlpha(YELLOW, Clamp(gs.timeSinceSceneChange/(SCENE_CHANGE/2.0f), 0, 1)));
-    ui::DrawTextV("A short story by\nsamosagaming69 (Odia\ntwinky boy) &\nsilli_chilli", {22, 48}, 14, ColorAlpha(GREEN, Clamp(gs.timeSinceSceneChange/(SCENE_CHANGE/2.0f), 0, 1)));
+    ui::DrawTextV("A short story by\nsamosagaming69 &\nsilli_chilli", {22, 48}, 14, ColorAlpha(GREEN, Clamp(gs.timeSinceSceneChange/(SCENE_CHANGE/2.0f), 0, 1)));
     ui::DrawTextV("Music: Tomboyish Prelude\nAlbum: Fantasy Kaleidoscope OST\nCircle: Yuuhei Satellite\nArrangement: Iceon", {3, 323}, 12, ColorAlpha(ORANGE, Clamp(gs.timeSinceSceneChange/(SCENE_CHANGE/2.0f), 0, 1)));
 }

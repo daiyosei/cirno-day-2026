@@ -19,7 +19,8 @@
 namespace {
 
 void drawFrame(GameState& currentGameState) {
-    UpdateMusicStream(g_bgMusic);
+    UpdateMusicStream(currentGameState.BGMusic);
+    printf("%f\n", GetMusicTimePlayed(currentGameState.BGMusic));
     // if (GetMusicTimePlayed(g_bgMusic) >= GetMusicTimeLength(g_bgMusic)) {
     //     SeekMusicStream(g_bgMusic, 0);
     // }
@@ -123,9 +124,8 @@ int main() {
     // };
     // TODO : Implement Asset Manager
     // DisableCursor();
-    // g_bgMusic = LoadMusicStream("../assets/audio/bgm/bg.wav");
-    // PlayMusicStream(g_bgMusic);
-    SetMusicVolume(g_bgMusic, 0.5f);
+    currentGameState.BGMusic = LoadMusicStream("../assets/audio/bgm/bgm.mp3");
+    PlayMusicStream(currentGameState.BGMusic);
     currentGameState.AssetManager.init();
     #if defined (__EMSCRIPTEN__)
     currentGameState.touchScreenMode = (bool)isOnPhone();
