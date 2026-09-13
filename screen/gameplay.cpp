@@ -42,7 +42,7 @@ void drawGameplay(GameState &gs){
         gs.curExp = NEUTRAL;
     }
     if (DEBUG) { DrawText(TextFormat("%d, %d", (int)gs.currentMousePos.x, (int)gs.currentMousePos.y), 0, 40, 20, YELLOW);}
-    ui::DrawText(TextFormat("Explored : %d/12", gs.explored.size()), 5, 5, 17, RED);
+    ui::DrawText(TextFormat("Explored : %d/13", gs.explored.size()), 5, 5, 17, RED);
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) and !IsDialogRunning(gs)) {
         ProcessClick(gs);
     }

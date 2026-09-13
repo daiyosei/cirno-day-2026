@@ -104,6 +104,7 @@ inline void ProcessClick(GameState &gs) {
                     {CIRNO_DIALOG WOW, "I am feeling sleepy\nI had lots of fun with you."},
                     {CIRNO_DIALOG TIERED, " I am gonna take a nap\nnow. Let's see tommorow!!"}
                 });
+                gs.explored.insert(13);
                 gs.GameOver = true;
             } else {
                 SayDialog(gs, std::vector<Dialogues> {
