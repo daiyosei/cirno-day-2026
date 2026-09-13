@@ -8,7 +8,7 @@
 
 constexpr float TRANSITION_TIME = 1.5f; // in seconds
 
-Texture2D getCirno(GameState &gs)
+inline Texture2D getCirno(GameState &gs)
 {
     switch (gs.curExp) {
         case NEUTRAL:
@@ -83,7 +83,7 @@ inline void DrawSceneChange(GameState &gs) {
             float halfTime = gs.timeSinceSceneChange - (TRANSITION_TIME / 2);
             float t2 = Clamp(halfTime / (TRANSITION_TIME / 2), 0.0f, 1.0f);
             float a2 = 0.5f - 0.5f * cosf(t2 * PI);
-            
+
             DrawTextureV(getCirno(gs),
                          CIRNO_SPRITE_POSITION,
                          ColorAlpha(WHITE, a2));
