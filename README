@@ -1,0 +1,22 @@
+Happy Cirno Day 2026
+
+Music Used:
+Title: おてんばプレリュード 
+Album: 幻想万華鏡～肝試しの章～オリジナルサウンドトラック
+Circle: 幽閉サテライト
+Release Date: 2011/11/9
+Arrangement: Iceon
+Website: http://www.yuuhei-satellite.jp/ 
+
+
+All art drawn by silli feel free to use them
+All code licensed under GPLv3 License
+Touhou Project is a copyright of ZUN and Team Sanghai Alice
+
+Build Instructions:
+Linux:
+just use scripts/build.sh
+Web:
+good luck, the scripts are hard coded for my computer but I have a github
+ci/cd script in this repo in .github/workflows/ , it can be used to compile
+for web too.
