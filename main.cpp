@@ -20,7 +20,6 @@ namespace {
 
 void drawFrame(GameState& currentGameState) {
     UpdateMusicStream(currentGameState.BGMusic);
-    printf("%f\n", GetMusicTimePlayed(currentGameState.BGMusic));
     // if (GetMusicTimePlayed(g_bgMusic) >= GetMusicTimeLength(g_bgMusic)) {
     //     SeekMusicStream(g_bgMusic, 0);
     // }
